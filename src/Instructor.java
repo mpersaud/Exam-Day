@@ -1,13 +1,13 @@
-import java.util.ArrayList;
 import java.util.Random;
 
 public class Instructor extends Thread {
 
     Random rand = new Random();
+    int exam_num=0;
 
 
     public void msg(String m) {
-        System.out.println("[" + (Main.elapsedTime()) + "] " + getName() + ": " + m);
+        System.out.println("[" + (examRoom.elapsedTime()) + "] " + getName() + ": " + m);
     }
 
     public Instructor(){
@@ -18,72 +18,93 @@ public class Instructor extends Thread {
     @Override
     public void run() {
 
-            ///arrival of instruct
-        int i=0;
-    while(!Main.getExamCompleted()) {
-        Main.clearClassCounter();
 
-        randWait();
-        msg("arrived");
-        Main.setInstructorArrived(true);
+        while(!examRoom.getAllExamCompleted()) {
 
-        sleep();
-        Main.setExamStart(true);
-        msg("Exam Starting");
+        //exam room should empty before the instructor arrives
+            examRoom.clearClassCounter();
 
-        sleep();
-        msg("Exam Ending");
+            instructorArrival();
+            timeTillExam();
+            examDuration();
+            examCleanup();
+            instructorBreak();
 
-        for (Student e :
-                Main.getClassroom()) {
-            e.interrupt();
-            e.exam_grades[i] = rand.nextInt(90)+10;
-
-        }
-        i++;
-        Main.setInstructorArrived(false);
-        Main.setExamStart(false);
-        Main.setClassFilled();
-        Main.clearClassCounter();
-        Main.setExamRound();
-
-        randWait();
     }
-        msg("Exam Grades for Students");
+    msg("Exam Grades for Students");
 
-        for (int j=0;j<Main.stud.length;j++){
+        for (int j = 0; j< examRoom.stud.length; j++){
 
-            msg(Main.stud[j].getName()+": ("+Main.stud[j].exam_grades[0] +","+ Main.stud[j].exam_grades[1]+ ","+ Main.stud[j].exam_grades[2]+")");
+            msg(examRoom.stud[j].getName()+": ("+ examRoom.stud[j].exam_grades[0] +","+ examRoom.stud[j].exam_grades[1]+ ","+ examRoom.stud[j].exam_grades[2]+")");
         }
 
         try {
-            Main.stud[0].join();
+            examRoom.stud[0].join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         msg("leaves to go home as all students have left");
 
-
     }
 
-    public void randWait(){
-
+    private void instructorBreak() {
         try {
-            Thread.currentThread().sleep(rand.nextInt(2000));
-
-
+            Thread.currentThread().sleep(rand.nextInt(4000));
         } catch (InterruptedException e) {
             //
         }
     }
 
-    public void sleep(){
+    public void instructorArrival(){
+        try {
+            Thread.currentThread().sleep(rand.nextInt(3000));
+        } catch (InterruptedException e) {
+            //
+        }
+        msg("has arrived!");
+        examRoom.setInstructorArrived(true);
+    }
+
+    public void timeTillExam(){
         try {
             Thread.currentThread().sleep(5000);
-
-
         } catch (InterruptedException e) {
             //
         }
+        examRoom.setExamStart(true);
+        msg("Exam Starting");
+    }
+    public void examDuration(){
+        try {
+            Thread.currentThread().sleep(5000);
+        } catch (InterruptedException e) {
+            //
+        }
+        msg("Exam Finished");
+
+    }
+
+    public void examCleanup(){
+        /*
+        for (Student e : examRoom.getClassroom()) {
+            e.interrupt();
+            e.exam_grades[exam_num] = rand.nextInt(90)+10;
+        }
+        */
+
+        for (int counter = 0; counter < examRoom.getClassroom().size(); counter++) {
+              Student temp =examRoom.getClassroom().get(counter);
+                msg("collects "+temp.getName()+"'s test");
+                temp.interrupt();
+                temp.exam_grades[exam_num] = rand.nextInt(90)+10;
+
+            }
+        exam_num++;
+        examRoom.setInstructorArrived(false);
+        examRoom.setExamStart(false);
+        examRoom.setClassFilled();
+        examRoom.clearClassCounter();
+        examRoom.setExamRound();
+        msg("End of Exam Round :" + examRoom.getExamRound());
     }
 }

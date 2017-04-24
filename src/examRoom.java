@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 
-public class Main {
+
+public class examRoom {
 
     public static boolean instructerArrived = false;
     public static boolean examStart = false;
@@ -17,6 +18,8 @@ public class Main {
     public static int current_students =Nstudents-1;
     public static int examNeeded =2;
 
+
+
     public static final long elapsedTime()
     {
         return System.currentTimeMillis()- time;
@@ -25,7 +28,6 @@ public class Main {
     public static void main(String[] args) {
 
 
-        //classroom = new Student[capacity];
         stud = new Student[14];
 
         for (int i =0; i<14;i++){
@@ -33,8 +35,6 @@ public class Main {
             stud[i] =new Student(Integer.toString(i));
         }
         new Instructor();
-
-
 
 
     }
@@ -52,6 +52,7 @@ public class Main {
     }
 
     public static synchronized boolean getClassFilled(){
+        setClassFilled();
         return classroomFilled;
     }
 
@@ -72,7 +73,6 @@ public class Main {
 
     public static synchronized void increaseClassCounter(){
 
-        //classroom[class_counter] = (Student)Student.currentThread();
         class_counter++;
     }
     public static synchronized void clearClassCounter(){
@@ -83,19 +83,18 @@ public class Main {
     public static synchronized ArrayList<Student> getClassroom() {
         return classroom;
     }
-    public static synchronized  void addStudent(){
-        Student temp =(Student)Thread.currentThread();
-        classroom.add(temp);
+    public static synchronized  void addStudent(Student s){
+        classroom.add(s);
 
 
     }
 
     public static synchronized  void setExamRound() {
         examRound++;
-        System.out.println("End of Exam Round :" +examRound);
+        //System.out.println("End of Exam Round :" +examRound);
 
     }
-    public static synchronized boolean getExamCompleted(){
+    public static synchronized boolean getAllExamCompleted(){
         if(examRound>=3)examsCompleted=true;
         return examsCompleted;
 
@@ -108,6 +107,9 @@ public class Main {
         current_students--;
     }
 
+    public static synchronized  int getExamRound(){
+        return examRound;
+    }
 
 
 }
