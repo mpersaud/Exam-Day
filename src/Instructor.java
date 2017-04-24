@@ -6,7 +6,6 @@ public class Instructor extends Thread {
     Random rand = new Random();
 
 
-
     public void msg(String m) {
         System.out.println("[" + (Main.elapsedTime()) + "] " + getName() + ": " + m);
     }
@@ -19,55 +18,50 @@ public class Instructor extends Thread {
     @Override
     public void run() {
 
-        while(true) {
             ///arrival of instruct
+        int i=0;
+    while(!Main.getExamCompleted()) {
+        Main.clearClassCounter();
 
+        randWait();
+        msg("arrived");
+        Main.setInstructorArrived(true);
 
-            if(Main.getExamCompleted())break;
-            randWait();
-            msg("arrived");
-            Main.setInstructorArrived(true);
-        /*
+        sleep();
+        Main.setExamStart(true);
+        msg("Exam Starting");
 
-        Sleep for exact time and then start exam
+        sleep();
+        msg("Exam Ending");
 
-         */
-            sleep();
-
-            /// starting exam and then sleeping for exact time
-            msg("Exam Started");
-            Main.setExamStart(true);
-            Main.setInstructorArrived(false);
-
-
-            sleep();
-
-            //for all sleeping students , interupt, and add exam grade to them
-
-            Student[] students = Main.getClassroom();
-            //catching exception if array is empty
-
-                for (int i = 0; i < students.length; i++) {
-                    //System.out.println(students[i].getUncaughtExceptionHandler());
-                    students[i].interrupt();
-                }
-                Main.clearClassCounter();
-                Main.setExamStart(false);
-                Main.setTestFinished(true);
-                Main.setExamRound();
-
-
-            try {
-                Thread.currentThread().sleep(rand.nextInt(5000));
-
-            } catch (InterruptedException e) {
-                //
-            }
-
-
-
+        for (Student e :
+                Main.getClassroom()) {
+            e.interrupt();
+            e.exam_grades[i] = rand.nextInt(90)+10;
 
         }
+        i++;
+        Main.setInstructorArrived(false);
+        Main.setExamStart(false);
+        Main.setClassFilled();
+        Main.clearClassCounter();
+        Main.setExamRound();
+
+        randWait();
+    }
+        msg("Exam Grades for Students");
+
+        for (int j=0;j<Main.stud.length;j++){
+
+            msg(Main.stud[j].getName()+": ("+Main.stud[j].exam_grades[0] +","+ Main.stud[j].exam_grades[1]+ ","+ Main.stud[j].exam_grades[2]+")");
+        }
+
+        try {
+            Main.stud[0].join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        msg("leaves to go home as all students have left");
 
 
     }
@@ -85,7 +79,7 @@ public class Instructor extends Thread {
 
     public void sleep(){
         try {
-            Thread.currentThread().sleep(2000);
+            Thread.currentThread().sleep(5000);
 
 
         } catch (InterruptedException e) {

@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class Main {
 
     public static boolean instructerArrived = false;
@@ -6,12 +8,14 @@ public class Main {
     public static boolean examsCompleted= false;
     private static int examRound=0;
     private static boolean testFinished = false;
-    int Nsdtudents =0;
-    static int capacity =1;
+    public static int Nstudents =14;
+    static int capacity =10;
     public static long time = System.currentTimeMillis();
-    public static Student[] classroom;
+    public static ArrayList<Student> classroom = new ArrayList<>();
     public static Student[] stud;
     private static int class_counter =0;
+    public static int current_students =Nstudents-1;
+    public static int examNeeded =2;
 
     public static final long elapsedTime()
     {
@@ -21,14 +25,16 @@ public class Main {
     public static void main(String[] args) {
 
 
-        classroom = new Student[capacity];
-        //stud = new Student[2];
+        //classroom = new Student[capacity];
+        stud = new Student[14];
 
-        for (int i =0; i<2;i++){
+        for (int i =0; i<14;i++){
 
-            new Student(Integer.toString(i));
+            stud[i] =new Student(Integer.toString(i));
         }
         new Instructor();
+
+
 
 
     }
@@ -59,6 +65,9 @@ public class Main {
 
             classroomFilled=true;
         }
+        else{
+            classroomFilled=false;
+        }
     }
 
     public static synchronized void increaseClassCounter(){
@@ -67,21 +76,23 @@ public class Main {
         class_counter++;
     }
     public static synchronized void clearClassCounter(){
-        classroom = new Student[capacity];
+        classroom.clear();
         class_counter=0;
     }
 
-    public static synchronized Student[] getClassroom() {
+    public static synchronized ArrayList<Student> getClassroom() {
         return classroom;
     }
     public static synchronized  void addStudent(){
-        classroom[class_counter] = (Student)Student.currentThread();
+        Student temp =(Student)Thread.currentThread();
+        classroom.add(temp);
+
 
     }
 
     public static synchronized  void setExamRound() {
         examRound++;
-        System.out.println("Exam Round :" +examRound);
+        System.out.println("End of Exam Round :" +examRound);
 
     }
     public static synchronized boolean getExamCompleted(){
@@ -90,11 +101,13 @@ public class Main {
 
     }
 
-    public static synchronized boolean getTestFinished() {
-        return testFinished;
+    public static synchronized  int getCurrent_Students(){
+        return current_students;
     }
-    public static synchronized  void setTestFinished(boolean b){
-        testFinished=b;
+    public static synchronized  void setCurrent_Students(){
+        current_students--;
     }
+
+
 
 }

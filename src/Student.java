@@ -1,3 +1,5 @@
+
+import java.util.Arrays;
 import java.util.Random;
 
 
@@ -6,14 +8,17 @@ public class Student extends Thread {
 
     Random rand = new Random();
 
-    int exam_1=0;
-    int exam_2=0;
-    int exam_3=0;
+    int [] exam_grades = new int[3];
+    int examsTaken=0;
+    int id =0;
+
 
 
     public Student(String id){
 
         setName("Student"+id);
+        this.id = Integer.parseInt(id);
+        Arrays.fill(exam_grades,0);
         //System.out.println(student.getName());
         start();
     }
@@ -24,11 +29,10 @@ public class Student extends Thread {
     @Override
     public void run() {
 
-        while(true) {
-
+        while (!Main.getExamCompleted() && examsTaken!= Main.examNeeded) {
             ///end condition
 
-            if(Main.getExamCompleted())break;
+
             //arrival
             randWait();
             msg("waiting at class room ");
@@ -37,14 +41,14 @@ public class Student extends Thread {
             //busy waiting
             while (!Main.getInstructorArrived()) {
 
-                if(Main.getExamCompleted())break;
+                if (Main.getExamCompleted()) break;
 
                 randWait();
                 msg("is waiting for Instructor");
 
             }
 
-            //switching priorities to push up in ready que
+            //switching priorities to push up in ready queue
             Thread.currentThread().setPriority(getPriority() + 1);
             try {
                 Thread.currentThread().sleep(rand.nextInt(500));
@@ -55,57 +59,70 @@ public class Student extends Thread {
 
             }
             Thread.currentThread().setPriority(getPriority() - 1);
-
-
-            //checking if classroom is full or test started
+            //not working
             Main.setClassFilled();
             if (!Main.getClassFilled() && !Main.getExamStart()) {
 
-                //Main.setInstructorArrived(false);
 
-                msg("entered classroom");
-
-                Main.addStudent();
-                Main.increaseClassCounter();
                 Main.setClassFilled();
+                Main.increaseClassCounter();
+                Main.addStudent();
+                msg(" entered classroom");
 
-
-                while (!Main.getExamStart()) {
-                    msg(" waiting for exam");
-                    Wait();
-                }
-                msg(" taking Exam");
                 try {
-                    Thread.currentThread().sleep(500000);
-                    //msg("is waiting for Instructor");
+                    Thread.currentThread().sleep(10000);
+
 
                 } catch (InterruptedException e) {
-                    msg("Test has finished");
-
-
+                    msg(" finished exam!");
+                    examsTaken++;
                 }
-                /*
-                try {
-                    Thread.currentThread().sleep(rand.nextInt(5000));
-                    //msg("is waiting for Instructor");
 
-                } catch (InterruptedException e) {
+                randWait();
 
-                }
-                */
-                 Main.clearClassCounter();
-                 Main.setExamStart(false);
             } else {
-
-                if(Main.getClassFilled()) msg("Class is filled ");
-                else if(Main.getExamStart()) msg("Exam Started");
-
+                if (Main.getClassFilled()) msg("Class is Filled");
+                else if (Main.getExamStart()) msg("Exam already Started");
                 yield();
                 yield();
+
+                //busy waiting
+                while (Main.getExamStart()) {
+
+                    if (Main.getExamCompleted()) break;
+                    msg("is waiting for Instructor and Exam to end");
+                    randWait();
+
+
+                }
 
             }
+        }
+
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        if(id==Main.getCurrent_Students()){
+            Main.setCurrent_Students();
+            msg("finishes their Exams and goes home");
+        }
+        else if(Main.stud[id+1].isAlive()){
+
+            try {
+                Main.stud[id+1].join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            msg("finishes their Exams and goes home");
+
 
         }
+
 
 
     }
