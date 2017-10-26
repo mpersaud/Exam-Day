@@ -1,1 +1,2 @@
-Testing out Concurrency and Threading through a Simulation of Students taking Exams in a Classroom with limited seating
+Tests Concurrency and Threading within Java. 
+Creates a simulation of students taking exams within a classroom with limited seating.
